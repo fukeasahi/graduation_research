@@ -1,6 +1,7 @@
 from random import random, randint, seed
 from statistics import mean
 from copy import deepcopy
+from turtle import left
 
 import numpy as np
 import pandas as pd
@@ -46,9 +47,12 @@ class GPTree:
         if self.right: self.right.print_tree(prefix + "   ")
 
     def compute_tree(self, x): 
+        # もし、dataが[add, sub, mul]の場合、左下と右下をcompute_tree()する
         if (self.data in FUNCTIONS): 
             return self.data(self.left.compute_tree(x), self.right.compute_tree(x))
+        # もしdataが'x'の場合、xを返す
         elif self.data == 'x': return x
+        # [-2, -1, 0, 1, 2]は、それを返す
         else: return self.data
             
     def random_tree(self, grow, max_depth, depth = 0): # create random tree using either grow or full method
@@ -91,15 +95,20 @@ class GPTree:
         return 1 + l + r
 
     def build_subtree(self): # count is list in order to pass "by reference"
+        # GPtreeのインスタンスを作成する
         t = GPTree()
+        # インスタンスのデータをself.dataにする
         t.data = self.data
+        # もしslf.leftをに値があれば、self.left.build_subtree()をt.leftに実行する
         if self.left:  t.left  = self.left.build_subtree()
+        # もしslf.rightをに値があれば、self.right.build_subtree()をt.rightに実行する
         if self.right: t.right = self.right.build_subtree()
         return t
                         
     def scan_tree(self, count, second): # note: count is list, so it's passed "by reference"
         count[0] -= 1            
         if count[0] <= 1: 
+            # もし、secondが無ければ、self.build_subtree()
             if not second: # return subtree rooted here
                 return self.build_subtree()
             else: # glue subtree here
@@ -108,7 +117,9 @@ class GPTree:
                 self.right = second.right
         else:  
             ret = None              
+            # もし、左下に値があり、count[0]が1以上の場合、左下をscan_tree()をする
             if self.left  and count[0] > 1: ret = self.left.scan_tree(count, second)  
+            # もし、右下に値があり、count[0]が1以上の場合、右下をスキャンする
             if self.right and count[0] > 1: ret = self.right.scan_tree(count, second)  
             return ret
 
